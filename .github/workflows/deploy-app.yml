@@ -48,7 +48,7 @@ jobs:
           region: southcentralus
           subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION }}
           template: ./infrastructure/setup-subscription.bicep
-          parameters: setup-subscription.parameters.${{ inputs.environment }}.json
+          parameters: ./infrastructure/setup-subscription.parameters.${{ inputs.environment }}.json
           failOnStdErr: false
 
       - name: get-api-key
