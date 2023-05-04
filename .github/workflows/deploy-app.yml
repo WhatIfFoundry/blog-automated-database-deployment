@@ -49,7 +49,7 @@ jobs:
           failOnStdErr: false
 
       - name: get-api-key
-        uses: azure/cli
+        uses: azure/cli@v1
         with:
           inlineScript: |
             key=az staticwebapp secrets list --name ${{ steps.azure-environment-setup.outputs.staticWebsiteName }} --query "properties.apiKey"
