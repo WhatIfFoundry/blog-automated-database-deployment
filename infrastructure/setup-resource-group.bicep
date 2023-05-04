@@ -4,6 +4,7 @@ targetScope = 'resourceGroup'
 
 param environment string
 param location string = resourceGroup().location
+param appPlanNameBase string = 'wif-blog-app-plan-'
 param functionAppNameBase string = 'wif-blog-aaes-api-host-'
 param staticWebsiteNameBase string = 'wif-blog-aaes-static-website-'
 param storageAccountNameBase string = 'wifblogaaesstorage'
@@ -34,7 +35,7 @@ resource staticWebsite 'Microsoft.Web/staticSites@2022-09-01' = {
 }
 
 resource functionAppServerFarm 'Microsoft.Web/serverfarms@2022-09-01' = {
-  name: 'app-plan-${env}'
+  name: '${appPlanNameBase}${env}'
   location: location
   sku: {
     name: 'Y1'  //consumption based

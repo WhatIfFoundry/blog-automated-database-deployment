@@ -55,11 +55,8 @@ jobs:
         with:
           inlineScript: |
             staticWebsiteName=$(az deployment sub show -n ${{ env.DEPLOYMENT_NAME }} --query "properties.outputs.staticWebsiteName.value")
-            echo "staticWebsiteName=$staticWebsiteName" >> "$GITHUB_OUTPUT"
-
-      - run: |
-          echo "static website name"
-          echo ${{ steps.azure-environment-setup.outputs.staticWebsiteName }}
+            echo "static website name: [$staticWebsiteName]"
+            echo staticWebsiteName=$staticWebsiteName >> $GITHUB_OUTPUT
 
       - name: get-api-key
         uses: azure/cli@v1
@@ -67,7 +64,7 @@ jobs:
           inlineScript: |
             key=$(az staticwebapp secrets list --name ${{ steps.bicep-outputs.outputs.staticWebsiteName }} --query "properties.apiKey")
             echo "::add-mask::$key"
-            echo "key=$key" >> "$GITHUB_OUTPUT"
+            echo key=$key >> $GITHUB_OUTPUT
 
       - uses: Azure/static-web-apps-deploy@v1
         name: deploy-static-site
