@@ -4,9 +4,9 @@ targetScope = 'resourceGroup'
 
 param environment string
 param location string = resourceGroup().location
-param functionAppNameBase string = 'wif-api-host-'
-param staticWebsiteNameBase string = 'wif-static-website-'
-param storageAccountNameBase string = 'wifstorageaccount'
+param functionAppNameBase string = 'wif-blog-aaes-api-host-'
+param staticWebsiteNameBase string = 'wif-blog-aaes-static-website-'
+param storageAccountNameBase string = 'wifblogaaesstorageaccount'
 
 var env = toLower(environment)
 

@@ -7,7 +7,7 @@ param environment string
 param location string = deployment().location
 
 resource resourceGroup 'Microsoft.Resources/resourceGroups@2022-09-01' = {
-  name: 'my-resouce-group-${environment}'
+  name: 'wif-blog-aaes-${environment}'
   location: location
 }
 
@@ -17,6 +17,7 @@ module resourceGroupModule 'setup-resource-group.bicep' = {
   params: {
     environment: environment
     location: location
+
   }
 }
 
