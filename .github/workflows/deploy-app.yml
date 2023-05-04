@@ -56,16 +56,17 @@ jobs:
         uses: azure/cli@v1
         with:
           inlineScript: |
-            az staticwebapp secrets list --resource-group ${{ steps.azure-environment-setup.outputs.resourceGroupName }} --name ${{ steps.azure-environment-setup.outputs.staticWebsiteName }} --query "properties.apiKey"
             key=$(az staticwebapp secrets list --resource-group ${{ steps.azure-environment-setup.outputs.resourceGroupName }} --name ${{ steps.azure-environment-setup.outputs.staticWebsiteName }} --query "properties.apiKey")
-            echo "$key"
-            echo key=$key >> $GITHUB_OUTPUT
+            echo "Key: [$key]"
+            echo staticWebAppToken=$key >> $GITHUB_OUTPUT
+
+      - run: echo ${{ steps.get-api-key.outputs.staticWebAppToken }}
 
       - uses: Azure/static-web-apps-deploy@v1
         name: deploy-static-site
         with:
           skip_app_build: true
-          azure_static_web_apps_api_token: ${{ steps.get-api-key.outputs.key }}
+          azure_static_web_apps_api_token: ${{ steps.get-api-key.outputs.staticWebAppToken }}
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           action: "upload"
           app_location: "./src/ui/build/"
