@@ -21,7 +21,7 @@ jobs:
 
       - name: build-ui
         run: npm run build
-        working-directory: ../../src/ui
+        working-directory: ./src/ui
 
       - name: setup-dotnet
         uses: actions/setup-dotnet@v3
@@ -30,7 +30,7 @@ jobs:
 
       - name: build-api
         run: dotnet build --configuration Release
-        working-directory: ../../src/api
+        working-directory: ./src/api
 
       - name: azure-login
         uses: azure/login@v1
