@@ -17,7 +17,6 @@ module resourceGroupModule 'setup-resource-group.bicep' = {
   params: {
     environment: environment
     location: location
-
   }
 }
 

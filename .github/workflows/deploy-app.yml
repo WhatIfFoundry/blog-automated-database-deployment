@@ -40,6 +40,7 @@ jobs:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
       - uses: azure/arm-deploy@v1
+        id: azure-environment-setup
         name: azure-environment-setup
         with:
           scope: subscription
@@ -50,15 +51,18 @@ jobs:
           parameters: ./infrastructure/setup-subscription.parameters.${{ inputs.environment }}.json
           failOnStdErr: false
 
-      - name: bicep-outputs
+      - id: bicep-outputs
+        name: bicep-outputs
         uses: azure/cli@v1
         with:
           inlineScript: |
             staticWebsiteName=$(az deployment sub show -n ${{ env.DEPLOYMENT_NAME }} --query "properties.outputs.staticWebsiteName.value")
             echo "static website name: [$staticWebsiteName]"
+            echo "static website name: [${{ steps.azure-environment-setup.outputs.staticWebsiteName }}]"
             echo staticWebsiteName=$staticWebsiteName >> $GITHUB_OUTPUT
 
-      - name: get-api-key
+      - id: get-api-key
+        name: get-api-key
         uses: azure/cli@v1
         with:
           inlineScript: |
