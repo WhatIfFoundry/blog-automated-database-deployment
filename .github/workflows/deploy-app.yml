@@ -49,13 +49,14 @@ jobs:
           subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION }}
           template: ./infrastructure/setup-subscription.bicep
           parameters: ./infrastructure/setup-subscription.parameters.${{ inputs.environment }}.json
+          deploymentMode: Complete
           failOnStdErr: false
 
       - name: get-api-key
         uses: azure/cli@v1
         with:
           inlineScript: |
-            key=az staticwebapp secrets list --name ${{ steps.azure-environment-setup.outputs.staticWebsiteName }} --query "properties.apiKey"
+            key=$(az staticwebapp secrets list --name ${{ steps.azure-environment-setup.outputs.staticWebsiteName }} --query "properties.apiKey")
             echo "::add-mask::$key"
             echo "key=$key" >> "$GITHUB_OUTPUT"
 
