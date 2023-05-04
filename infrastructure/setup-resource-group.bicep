@@ -53,7 +53,11 @@ resource functionApp 'Microsoft.Web/sites@2022-09-01' = {
   }
   properties: {
     serverFarmId: functionAppServerFarm.id
+    
     siteConfig: {
+      cors: {
+        allowedOrigins: ['https://${staticWebsite.properties.defaultHostname}']
+      }
       appSettings: [
         {
           name: 'AzureWebJobsStorage'
@@ -71,31 +75,31 @@ resource functionApp 'Microsoft.Web/sites@2022-09-01' = {
           name: 'WEBSITE_RUN_FROM_PACKAGE'
           value: '1'
         },{
-          name: 'Quotes[0].Id'
+          name: 'Quotes__0__id'
           value: '1'
         },{
-          name: 'Quotes[0].Text'
+          name: 'Quotes__0__text'
           value: 'Software undergoes beta testing shortly before it\'s released. Beta is Latin for “still doesn\'t work”.'
         },{
-          name: 'Quotes[0].Source'
+          name: 'Quotes__0__source'
           value: 'Anonymous'
         },{
-          name: 'Quotes[1].Id'
+          name: 'Quotes__1__id'
           value: '2'
         },{
-          name: 'Quotes[1].Text'
+          name: 'Quotes__1__text'
           value: 'Measuring programming progress by lines of code is like measuring aircraft building progress by weight.'
         },{
-          name: 'Quotes[1].Source'
+          name: 'Quotes__1__source'
           value: 'Bill Gates'
         },{
-          name: 'Quotes[2].Id'
+          name: 'Quotes__2__id'
           value: '3'
         },{
-          name: 'Quotes[2].Text'
+          name: 'Quotes__2__text'
           value: 'If debugging is the process of removing software bugs, then programming must be the process of putting them in.'
         },{
-          name: 'Quotes[2].Source'
+          name: 'Quotes__2__source'
           value: 'Edsger Dijkstra'
         }
       ]

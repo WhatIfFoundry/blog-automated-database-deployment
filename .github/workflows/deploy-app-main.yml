@@ -1,0 +1,17 @@
+on:
+  push:
+    branches:
+      - main
+name: Deploy Application to Staging then Production
+
+jobs:
+  call-deploy-app:
+    steps:
+      - uses: ./.github/workflows/deploy-app.yml
+        with:
+          environment: stg
+        secrets: inherit
+      - uses: ./.github/workflows/deploy-app.yml
+        with:
+          environment: prd
+        secrets: inherit
