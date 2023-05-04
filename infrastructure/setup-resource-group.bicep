@@ -6,7 +6,7 @@ param environment string
 param location string = resourceGroup().location
 param functionAppNameBase string = 'wif-blog-aaes-api-host-'
 param staticWebsiteNameBase string = 'wif-blog-aaes-static-website-'
-param storageAccountNameBase string = 'wifblogaaesstorageaccount'
+param storageAccountNameBase string = 'wifblogaaesstorage'
 
 var env = toLower(environment)
 
