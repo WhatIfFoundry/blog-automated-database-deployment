@@ -3,11 +3,6 @@ using System.Text.Json;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
-
-public class Quote{
-    public string text {get;set;}
-    public string source{get;set;}
-}
 namespace api
 {
     public class QuoteApi
