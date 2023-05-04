@@ -6,8 +6,13 @@ param environment string
 @description('The azure datacenter location (i.e. westus2).  Can be found with Azure CLI `az account list-locations -o table`.')
 param location string = deployment().location
 
+@description('The root of the resource group name.  This will have the environment appended to it.')
+param resourceGroupNameBase string = 'wif-blog-aaes-'
+
+var env = toLower(environment)
+
 resource resourceGroup 'Microsoft.Resources/resourceGroups@2022-09-01' = {
-  name: 'wif-blog-aaes-${environment}'
+  name: '${resourceGroupNameBase}${env}'
   location: location
 }
 
@@ -20,4 +25,5 @@ module resourceGroupModule 'setup-resource-group.bicep' = {
   }
 }
 
+output resourceGroupName string = resourceGroup.name
 output staticWebsiteName string = resourceGroupModule.outputs.staticWebsiteName

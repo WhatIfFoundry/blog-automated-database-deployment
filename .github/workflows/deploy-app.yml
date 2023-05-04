@@ -51,22 +51,12 @@ jobs:
           parameters: ./infrastructure/setup-subscription.parameters.${{ inputs.environment }}.json
           failOnStdErr: false
 
-      - id: bicep-outputs
-        name: bicep-outputs
-        uses: azure/cli@v1
-        with:
-          inlineScript: |
-            staticWebsiteName=$(az deployment sub show -n ${{ env.DEPLOYMENT_NAME }} --query "properties.outputs.staticWebsiteName.value")
-            echo "static website name: [$staticWebsiteName]"
-            echo "static website name: [${{ steps.azure-environment-setup.outputs.staticWebsiteName }}]"
-            echo staticWebsiteName=$staticWebsiteName >> $GITHUB_OUTPUT
-
       - id: get-api-key
         name: get-api-key
         uses: azure/cli@v1
         with:
           inlineScript: |
-            key=$(az staticwebapp secrets list --name ${{ steps.bicep-outputs.outputs.staticWebsiteName }} --query "properties.apiKey")
+            key=$(az staticwebapp secrets list --resource-group ${{ steps.azure-environment-setup.outputs.resourceGroupName }} --name ${{ steps.azure-environment-setup.outputs.staticWebsiteName }} --query "properties.apiKey")
             echo "::add-mask::$key"
             echo key=$key >> $GITHUB_OUTPUT
 
