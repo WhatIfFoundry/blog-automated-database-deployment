@@ -74,4 +74,4 @@ jobs:
         name: "deploy-api"
         with:
           app-name: ${{ steps.azure-environment-setup.outputs.functionAppName }}
-          package: "./src/api/build/output"
+          package: "src/api/build"
