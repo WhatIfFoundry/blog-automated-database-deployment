@@ -1,0 +1,10 @@
+on:
+  push:
+    branches:
+      - develop
+
+jobs:
+  call-deploy-app:
+    uses: deploy-app.yml
+    with:
+      environment: qa
