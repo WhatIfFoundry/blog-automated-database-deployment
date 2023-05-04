@@ -1,24 +1,84 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { useMemo, useState } from "react";
+import "./App.scss";
+import { useQuery } from "@tanstack/react-query";
+import Icon from "@mdi/react";
+import { mdiChevronLeft, mdiChevronRight } from "@mdi/js";
+
+interface Quote {
+  id: number;
+  text: string;
+  source: string;
+}
 
 function App() {
+  const {
+    isLoading: isQuoteDataLoading,
+    error: quoteFetchError,
+    data: quoteData,
+  } = useQuery<Quote[]>({
+    queryKey: ["quotes"],
+    queryFn: () =>
+      fetch(`${process.env.REACT_APP_API_URL}/api/quote`).then((res) =>
+        res.json()
+      ),
+  });
+
+  const [index, setIndex] = useState(0);
+
+  const setIndexValue = (i: number) => {
+    if (!quoteData) {
+      return;
+    }
+    if (i < 0) {
+      setIndex(quoteData.length - 1);
+    } else if (i >= quoteData.length) {
+      setIndex(0);
+    } else {
+      setIndex(i);
+    }
+  };
+
+  const quote = useMemo(() => {
+    if (!quoteData) {
+      return undefined;
+    }
+    return quoteData[index];
+  }, [quoteData, index]);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div className="container text-center">
+      <div className="row">
+        <div className="col">
+          {isQuoteDataLoading ? (
+            <div className="spinner-border text-primary" role="status"></div>
+          ) : (
+            <blockquote className="blockquote">
+              <p>{quote?.text}</p>
+              <footer className="blockquote-footer">{quote?.source}</footer>
+            </blockquote>
+          )}
+        </div>
+      </div>
+      <div className="row">
+        <div className="col">
+          <div className="btn-group" role="group" aria-label="Basic example">
+            <button
+              type="button"
+              className="btn btn-primary"
+              onClick={() => setIndexValue(index - 1)}
+            >
+              <Icon path={mdiChevronLeft} size={1} title="Previous Quote" />
+            </button>
+            <button
+              type="button"
+              className="btn btn-primary"
+              onClick={() => setIndexValue(index + 1)}
+            >
+              <Icon path={mdiChevronRight} size={1} title="Previous Quote" />
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

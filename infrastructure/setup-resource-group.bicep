@@ -68,6 +68,9 @@ resource functionApp 'Microsoft.Web/sites@2022-09-01' = {
           name: 'WEBSITE_CONTENTAZUREFILECONNECTIONSTRING'
           value: storageAccountConnectionString
         },{
+          name: 'WEBSITE_RUN_FROM_PACKAGE'
+          value: '1'
+        },{
           name: 'Quotes[0].Id'
           value: '1'
         },{
@@ -102,3 +105,4 @@ resource functionApp 'Microsoft.Web/sites@2022-09-01' = {
 
 output staticWebsiteName string = staticWebsite.name
 output functionAppName string = functionApp.name
+output functionAppUrl string = 'https://${functionApp.properties.defaultHostName}'

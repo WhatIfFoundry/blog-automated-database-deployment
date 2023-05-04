@@ -28,3 +28,4 @@ module resourceGroupModule 'setup-resource-group.bicep' = {
 output resourceGroupName string = resourceGroup.name
 output staticWebsiteName string = resourceGroupModule.outputs.staticWebsiteName
 output functionAppName string = resourceGroupModule.outputs.functionAppName
+output functionAppUrl string = resourceGroupModule.outputs.functionAppUrl
