@@ -69,8 +69,9 @@ jobs:
           action: "upload"
           app_location: "src/ui/build"
           output_location: ""
+
       - uses: Azure/functions-action@v1
-        name: "Run Azure Functions Action"
+        name: "deploy-api"
         with:
           app-name: ${{ steps.azure-environment-setup.outputs.functionAppName }}
-          package: "src/api/build/output"
+          package: "./src/api/build/output"
