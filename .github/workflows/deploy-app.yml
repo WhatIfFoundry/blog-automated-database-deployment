@@ -45,7 +45,7 @@ jobs:
         name: azure-environment-setup
         with:
           scope: subscription
-          region: southcentralus
+          region: eastus2
           subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION }}
           template: ./infrastructure/setup-subscription.bicep
           parameters: ./infrastructure/setup-subscription.parameters.${{ inputs.environment }}.json
