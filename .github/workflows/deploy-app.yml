@@ -56,8 +56,9 @@ jobs:
         uses: azure/cli@v1
         with:
           inlineScript: |
+            az staticwebapp secrets list --resource-group ${{ steps.azure-environment-setup.outputs.resourceGroupName }} --name ${{ steps.azure-environment-setup.outputs.staticWebsiteName }} --query "properties.apiKey"
             key=$(az staticwebapp secrets list --resource-group ${{ steps.azure-environment-setup.outputs.resourceGroupName }} --name ${{ steps.azure-environment-setup.outputs.staticWebsiteName }} --query "properties.apiKey")
-            echo "::add-mask::$key"
+            echo "$key"
             echo key=$key >> $GITHUB_OUTPUT
 
       - uses: Azure/static-web-apps-deploy@v1
