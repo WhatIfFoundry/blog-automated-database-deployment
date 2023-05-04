@@ -101,3 +101,4 @@ resource functionApp 'Microsoft.Web/sites@2022-09-01' = {
 }
 
 output staticWebsiteName string = staticWebsite.name
+output functionAppName string = functionApp.name

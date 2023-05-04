@@ -31,7 +31,7 @@ jobs:
           dotnet-version: "7.0.x"
 
       - name: build-api
-        run: dotnet build --configuration Release
+        run: dotnet build --configuration Release --output ./build
         working-directory: ./src/api
 
       - name: azure-login
@@ -69,3 +69,8 @@ jobs:
           action: "upload"
           app_location: "src/ui/build"
           output_location: ""
+      - uses: Azure/functions-action@v1
+        name: "Run Azure Functions Action"
+        with:
+          app-name: ${{ steps.azure-environment-setup.outputs.functionAppName }}
+          package: "src/api/build/output"
