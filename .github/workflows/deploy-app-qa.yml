@@ -5,6 +5,6 @@ on:
 
 jobs:
   call-deploy-app:
-    uses: deploy-app.yml
+    uses: ./.github/workflows/deploy-app.yml
     with:
       environment: qa
