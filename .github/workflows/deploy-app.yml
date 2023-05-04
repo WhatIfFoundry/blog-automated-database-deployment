@@ -49,8 +49,11 @@ jobs:
           subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION }}
           template: ./infrastructure/setup-subscription.bicep
           parameters: ./infrastructure/setup-subscription.parameters.${{ inputs.environment }}.json
-          deploymentMode: Complete
           failOnStdErr: false
+
+      - run: |
+          echo "static website name"
+          echo ${{ steps.azure-environment-setup.outputs.staticWebsiteName }}
 
       - name: get-api-key
         uses: azure/cli@v1
