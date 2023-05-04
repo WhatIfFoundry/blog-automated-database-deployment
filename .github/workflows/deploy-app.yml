@@ -20,6 +20,10 @@ jobs:
         uses: actions/checkout@main
 
       - name: build-ui
+        run: npm install
+        working-directory: ./src/ui
+
+      - name: build-ui
         run: npm run build
         working-directory: ./src/ui
 
