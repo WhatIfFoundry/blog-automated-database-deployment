@@ -2,6 +2,7 @@ on:
   push:
     branches:
       - develop
+name: Deploy Application to QA
 
 jobs:
   call-deploy-app:

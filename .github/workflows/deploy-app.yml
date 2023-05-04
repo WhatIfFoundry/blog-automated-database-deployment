@@ -39,12 +39,11 @@ jobs:
 
       - uses: azure/arm-deploy@v1
         name: azure-environment-setup
-        working-directory: ../../infrastructure
         with:
           scope: subscription
           region: southcentralus
           subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION }}
-          template: setup-subscription.bicep
+          template: ./infrastructure/setup-subscription.bicep
           parameters: setup-subscription.parameters.${{ inputs.environment }}.json
           failOnStdErr: false
 
@@ -58,10 +57,9 @@ jobs:
 
       - uses: Azure/static-web-apps-deploy@v1
         name: deploy-static-site
-        working-directory: ../../src/ui/build
         with:
           skip_app_build: true
           azure_static_web_apps_api_token: ${{ steps.get-api-key.outputs.key }}
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           action: "upload"
-          app_location: "/"
+          app_location: "./src/ui/build/"
