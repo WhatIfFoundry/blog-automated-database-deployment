@@ -45,40 +45,52 @@ function App() {
     return quoteData[index];
   }, [quoteData, index]);
 
+  const renderedSection = useMemo(() => {
+    if (isQuoteDataLoading) {
+      return <div className="spinner-border text-primary" role="status"></div>;
+    }
+    if (quoteFetchError || !quote) {
+      return (
+        <div className="alert alert-danger" role="alert">
+          Error retrieving quotes.
+        </div>
+      );
+    }
+    return (
+      <blockquote className="blockquote">
+        <p>{quote?.text}</p>
+        <footer className="blockquote-footer">{quote?.source}</footer>
+      </blockquote>
+    );
+  }, [quote, isQuoteDataLoading, quoteFetchError]);
+
   return (
     <div className="container text-center">
       <div className="row">
-        <div className="col">
-          {isQuoteDataLoading ? (
-            <div className="spinner-border text-primary" role="status"></div>
-          ) : (
-            <blockquote className="blockquote">
-              <p>{quote?.text}</p>
-              <footer className="blockquote-footer">{quote?.source}</footer>
-            </blockquote>
-          )}
-        </div>
+        <div className="col">{renderedSection}</div>
       </div>
-      <div className="row">
-        <div className="col">
-          <div className="btn-group" role="group" aria-label="Basic example">
-            <button
-              type="button"
-              className="btn btn-primary"
-              onClick={() => setIndexValue(index - 1)}
-            >
-              <Icon path={mdiChevronLeft} size={1} title="Previous Quote" />
-            </button>
-            <button
-              type="button"
-              className="btn btn-primary"
-              onClick={() => setIndexValue(index + 1)}
-            >
-              <Icon path={mdiChevronRight} size={1} title="Previous Quote" />
-            </button>
+      {!!quote && (
+        <div className="row">
+          <div className="col">
+            <div className="btn-group" role="group" aria-label="Basic example">
+              <button
+                type="button"
+                className="btn btn-primary"
+                onClick={() => setIndexValue(index - 1)}
+              >
+                <Icon path={mdiChevronLeft} size={1} title="Previous Quote" />
+              </button>
+              <button
+                type="button"
+                className="btn btn-primary"
+                onClick={() => setIndexValue(index + 1)}
+              >
+                <Icon path={mdiChevronRight} size={1} title="Previous Quote" />
+              </button>
+            </div>
           </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }
