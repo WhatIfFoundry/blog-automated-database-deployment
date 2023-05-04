@@ -19,7 +19,7 @@ jobs:
       - name: checkout
         uses: actions/checkout@main
 
-      - name: build-ui
+      - name: install-npm-ui-packages
         run: npm install
         working-directory: ./src/ui
 
