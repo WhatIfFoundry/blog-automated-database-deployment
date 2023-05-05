@@ -1,18 +1,16 @@
-//Targeting the subscription so that we can create the resource group.
 //Resource group is the default and could be omited.
 targetScope = 'resourceGroup'
 
 param environment string
 param location string = resourceGroup().location
-param appPlanNameBase string = 'wif-blog-app-plan-'
-param functionAppNameBase string = 'wif-blog-aaes-api-host-'
-param staticWebsiteNameBase string = 'wif-blog-aaes-static-website-'
-param storageAccountNameBase string = 'wifblogaaesstorage'
-
-var env = toLower(environment)
+param resourceNamePrefix string = 'wif-blog-aaes-'
+param appPlanName string = '${toLower(resourceNamePrefix)}app-plan-${toLower(environment)}'
+param functionAppName string = '${toLower(resourceNamePrefix)}api-host-${toLower(environment)}'
+param staticWebsiteName string = '${toLower(resourceNamePrefix)}static-website-${toLower(environment)}'
+param storageAccountName string = '${replace(toLower(resourceNamePrefix), '-', '')}storage${toLower(environment)}'
 
 resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = {
-  name: '${storageAccountNameBase}${env}'
+  name: storageAccountName
   location: location
   kind: 'StorageV2'
   sku: {
@@ -24,7 +22,7 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = {
 }
 
 resource staticWebsite 'Microsoft.Web/staticSites@2022-09-01' = {
-  name: '${staticWebsiteNameBase}${env}'
+  name: staticWebsiteName
   location: location
   sku: {
     name: 'Free'
@@ -35,7 +33,7 @@ resource staticWebsite 'Microsoft.Web/staticSites@2022-09-01' = {
 }
 
 resource functionAppServerFarm 'Microsoft.Web/serverfarms@2022-09-01' = {
-  name: '${appPlanNameBase}${env}'
+  name: appPlanName
   location: location
   sku: {
     name: 'Y1'  //consumption based
@@ -45,7 +43,7 @@ resource functionAppServerFarm 'Microsoft.Web/serverfarms@2022-09-01' = {
 
 var storageAccountConnectionString = 'DefaultEndpointsProtocol=https;AccountName=${storageAccount.name};EndpointSuffix=${az.environment().suffixes.storage};AccountKey=${storageAccount.listKeys().keys[0].value}'
 resource functionApp 'Microsoft.Web/sites@2022-09-01' = {
-  name: '${functionAppNameBase}${env}'
+  name: functionAppName
   location: location
   kind: 'linux,functionapp'
   identity: {
