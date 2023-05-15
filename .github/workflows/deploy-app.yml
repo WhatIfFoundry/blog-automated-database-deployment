@@ -98,7 +98,7 @@ jobs:
                 sha: context.sha
             })
             try {
-              await github.git.deleteRef({
+              await github.rest.git.deleteRef({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 ref: 'refs/tags/curr_${{inputs.environment}}'
