@@ -6,9 +6,6 @@ on:
         type: string
 name: Deploy Application
 
-env:
-  DEPLOYMENT_NAME: wif-blog-aaes-${{inputs.environment}}-${{ github.run_number }}-${{ github.run_attempt }}
-
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
@@ -19,75 +16,76 @@ jobs:
         uses: azure/cli@v1
         with:
           inlineScript: |
-            build=$(az staticwebapp secrets list --resource-group ${{ steps.azure-environment-setup.outputs.resourceGroupName }} --name ${{ steps.azure-environment-setup.outputs.staticWebsiteName }} --query "properties.apiKey" | tr -d '"')
             echo build=$(printf "${{inputs.environment}}-%05g-%03g" ${{ github.run_number }} ${{ github.run_attempt }}) >> $GITHUB_OUTPUT
 
-      - name: checkout
-        uses: actions/checkout@main
+      # - name: checkout
+      #   uses: actions/checkout@main
 
-      - name: azure-login
-        uses: azure/login@v1
-        with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
+      # - name: azure-login
+      #   uses: azure/login@v1
+      #   with:
+      #     creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - uses: azure/arm-deploy@v1
-        id: azure-environment-setup
-        name: azure-environment-setup
-        with:
-          scope: subscription
-          deploymentName: wif-blog-aaes-${{ steps.get-build-version.outputs.build }}
-          region: eastus2
-          subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION }}
-          template: ./infrastructure/setup-subscription.bicep
-          parameters: ./infrastructure/setup-subscription.parameters.${{ inputs.environment }}.json
-          failOnStdErr: false
+      # - uses: azure/arm-deploy@v1
+      #   id: azure-environment-setup
+      #   name: azure-environment-setup
+      #   with:
+      #     scope: subscription
+      #     deploymentName: wif-blog-aaes-${{ steps.get-build-version.outputs.build }}
+      #     region: eastus2
+      #     subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION }}
+      #     template: ./infrastructure/setup-subscription.bicep
+      #     parameters: ./infrastructure/setup-subscription.parameters.${{ inputs.environment }}.json
+      #     failOnStdErr: false
 
-      - name: install-npm-ui-packages
-        run: npm install
-        working-directory: ./src/ui
+      # - name: install-npm-ui-packages
+      #   run: npm install
+      #   working-directory: ./src/ui
 
-      - name: set-api-url
-        run: sed -i 's|{API_URL}|${{ steps.azure-environment-setup.outputs.functionAppUrl }}|g' ./src/ui/.env.production
+      # - name: set-api-url
+      #   run: sed -i 's|{API_URL}|${{ steps.azure-environment-setup.outputs.functionAppUrl }}|g' ./src/ui/.env.production
 
-      - name: build-ui
-        run: npm run build
-        working-directory: ./src/ui
+      # - name: build-ui
+      #   run: npm run build
+      #   working-directory: ./src/ui
 
-      - name: setup-dotnet
-        uses: actions/setup-dotnet@v3
-        with:
-          dotnet-version: "7.0.x"
+      # - name: setup-dotnet
+      #   uses: actions/setup-dotnet@v3
+      #   with:
+      #     dotnet-version: "7.0.x"
 
-      - name: build-api
-        run: dotnet build --configuration Release --output ./build
-        working-directory: ./src/api
+      # - name: build-api
+      #   run: dotnet build --configuration Release --output ./build
+      #   working-directory: ./src/api
 
-      - id: get-api-key
-        name: get-api-key
-        uses: azure/cli@v1
-        with:
-          inlineScript: |
-            key=$(az staticwebapp secrets list --resource-group ${{ steps.azure-environment-setup.outputs.resourceGroupName }} --name ${{ steps.azure-environment-setup.outputs.staticWebsiteName }} --query "properties.apiKey" | tr -d '"')
-            echo "::add-mask::$key"
-            echo key=$key >> $GITHUB_OUTPUT
+      # - id: get-api-key
+      #   name: get-api-key
+      #   uses: azure/cli@v1
+      #   with:
+      #     inlineScript: |
+      #       key=$(az staticwebapp secrets list --resource-group ${{ steps.azure-environment-setup.outputs.resourceGroupName }} --name ${{ steps.azure-environment-setup.outputs.staticWebsiteName }} --query "properties.apiKey" | tr -d '"')
+      #       echo "::add-mask::$key"
+      #       echo key=$key >> $GITHUB_OUTPUT
 
-      - uses: Azure/static-web-apps-deploy@v1
-        name: deploy-static-site
-        with:
-          skip_app_build: true
-          azure_static_web_apps_api_token: ${{ steps.get-api-key.outputs.key }}
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          action: "upload"
-          app_location: "src/ui/build"
-          output_location: ""
+      # - uses: Azure/static-web-apps-deploy@v1
+      #   name: deploy-static-site
+      #   with:
+      #     skip_app_build: true
+      #     azure_static_web_apps_api_token: ${{ steps.get-api-key.outputs.key }}
+      #     repo_token: ${{ secrets.GITHUB_TOKEN }}
+      #     action: "upload"
+      #     app_location: "src/ui/build"
+      #     output_location: ""
 
-      - uses: Azure/functions-action@v1
-        name: "deploy-api"
-        with:
-          app-name: ${{ steps.azure-environment-setup.outputs.functionAppName }}
-          package: "src/api/build"
+      # - uses: Azure/functions-action@v1
+      #   name: "deploy-api"
+      #   with:
+      #     app-name: ${{ steps.azure-environment-setup.outputs.functionAppName }}
+      #     package: "src/api/build"
 
       - name: create-git-tags
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           set -e
           gh api --method POST -H "Accept: application/vnd.github+json" -H "X-GitHub-Api-Version: 2022-11-28" /repos/${{ github.repository.owner }}/${{ github.repository.name }}/git/refs -f ref='refs/tags/${{ steps.get-build-version.outputs.build }}' -f sha='${{ github.sha }}' 
