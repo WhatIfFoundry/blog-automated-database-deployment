@@ -14,6 +14,14 @@ jobs:
     runs-on: ubuntu-latest
     environment: ${{ inputs.environment }}
     steps:
+      - id: get-build-version
+        name: get-build-version
+        uses: azure/cli@v1
+        with:
+          inlineScript: |
+            build=$(az staticwebapp secrets list --resource-group ${{ steps.azure-environment-setup.outputs.resourceGroupName }} --name ${{ steps.azure-environment-setup.outputs.staticWebsiteName }} --query "properties.apiKey" | tr -d '"')
+            echo build=$(printf "${{inputs.environment}}-%05g-%03g" ${{ github.run_number }} ${{ github.run_attempt }}) >> $GITHUB_OUTPUT
+
       - name: checkout
         uses: actions/checkout@main
 
@@ -27,7 +35,7 @@ jobs:
         name: azure-environment-setup
         with:
           scope: subscription
-          deploymentName: ${{ env.DEPLOYMENT_NAME }}
+          deploymentName: wif-blog-aaes-${{ steps.get-build-version.outputs.build }}
           region: eastus2
           subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION }}
           template: ./infrastructure/setup-subscription.bicep
@@ -87,7 +95,7 @@ jobs:
             github.rest.git.createRef({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
-                ref: 'refs/tags/${{inputs.environment}}-${{ github.run_number }}-${{ github.run_attempt }}',
+                ref: 'refs/tags/${{ steps.get-build-version.outputs.build }}',
                 sha: context.sha
             })
             github.rest.git.createRef({
