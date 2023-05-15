@@ -101,7 +101,7 @@ jobs:
               await github.git.deleteRef({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
-                ref: 'tags/curr_${{inputs.environment}}'
+                ref: 'refs/tags/curr_${{inputs.environment}}'
               })
             } catch (e) { /* do nothing, tag probably doesn't exist */ }
             await github.rest.git.createRef({
