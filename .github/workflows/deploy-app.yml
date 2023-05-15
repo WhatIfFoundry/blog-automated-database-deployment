@@ -103,7 +103,10 @@ jobs:
                 repo: context.repo.repo,
                 ref: 'refs/tags/curr_${{inputs.environment}}'
               })
-            } catch (e) { /* do nothing, tag probably doesn't exist */ }
+            } catch (e) { 
+              // just log, tag probably doesn't exist
+              console.log(e)
+            }
             await github.rest.git.createRef({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
