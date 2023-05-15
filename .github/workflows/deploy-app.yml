@@ -87,18 +87,24 @@ jobs:
           app-name: ${{ steps.azure-environment-setup.outputs.functionAppName }}
           package: "src/api/build"
 
-      - name: Create Tag
+      - name: create-git-tags
         uses: actions/github-script@v6
         with:
           script: |
-            const {DIST_VERSION} = process.env          
-            github.rest.git.createRef({
+            await github.rest.git.createRef({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 ref: 'refs/tags/${{ steps.get-build-version.outputs.build }}',
                 sha: context.sha
             })
-            github.rest.git.createRef({
+            try {
+              await github.git.deleteRef({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                ref: 'tags/curr_${{inputs.environment}}'
+              })
+            } catch (e) { /* do nothing, tag probably doesn't exist */ }
+            await github.rest.git.createRef({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 ref: 'refs/tags/curr_${{inputs.environment}}',
