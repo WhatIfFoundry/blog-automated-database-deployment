@@ -7,7 +7,7 @@ on:
 name: Deploy Application
 
 env:
-  DEPLOYMENT_NAME: wif-blog-aaes-${{inputs.environment}}-${{ github.run_number }}
+  DEPLOYMENT_NAME: wif-blog-aaes-${{inputs.environment}}-${{ github.run_number }}-${{ github.run_attempt }}
 
 jobs:
   build-and-deploy:
@@ -78,3 +78,21 @@ jobs:
         with:
           app-name: ${{ steps.azure-environment-setup.outputs.functionAppName }}
           package: "src/api/build"
+
+      - name: Create Tag
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const {DIST_VERSION} = process.env          
+            github.rest.git.createRef({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                ref: 'refs/tags/${{inputs.environment}}-${{ github.run_number }}-${{ github.run_attempt }}',
+                sha: context.sha
+            })
+            github.rest.git.createRef({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                ref: 'refs/tags/curr_${{inputs.environment}}',
+                sha: context.sha
+            })
