@@ -10,8 +10,9 @@ var host = new HostBuilder()
     })
     .ConfigureServices((h,x) =>{
         var config = h.Configuration;
-        x.AddSingleton(config.GetSection("Quotes").Get<Quote[]>());
-    })
+        x.AddTransient<Api.Accessors.IQuoteAccessor, Api.Accessors.QuoteAccessor>();
+        x.AddSingleton(config.GetSection("Database").Get<Api.Configuration.DatabaseConfiguration>());
+    })  
     .Build();
 
 host.Run();

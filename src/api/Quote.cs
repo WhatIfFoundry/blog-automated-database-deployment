@@ -1,4 +1,4 @@
 public class Quote{
-    public string text {get;set;}
-    public string source{get;set;}
+    public required string Text {get;set;}
+    public required string Source{get;set;}
 }

@@ -1,18 +1,19 @@
 using System.Net;
 using System.Text.Json;
+using Api.Accessors;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
-namespace api
+namespace Api
 {
     public class QuoteApi
     {
+        private readonly IQuoteAccessor _quoteAccessor;
         private readonly ILogger _logger;
-        private readonly Quote[] _quotes;
-
-        public QuoteApi(Quote[] quotes, ILoggerFactory loggerFactory)
+        
+        public QuoteApi(IQuoteAccessor quoteAccessor, ILoggerFactory loggerFactory)
         {
-            _quotes = quotes;
+            _quoteAccessor = quoteAccessor;
             _logger = loggerFactory.CreateLogger<Quote>();
         }
 
@@ -24,7 +25,10 @@ namespace api
             var response = req.CreateResponse(HttpStatusCode.OK);
             response.Headers.Add("Content-Type", "application/json");
 
-            response.WriteString(JsonSerializer.Serialize(_quotes));
+            var jsonOpts = new JsonSerializerOptions() {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            };
+            response.WriteString(JsonSerializer.Serialize(_quoteAccessor.GetQuotes(), jsonOpts));
 
             return response;
         }
