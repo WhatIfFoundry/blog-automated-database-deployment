@@ -9,8 +9,21 @@ param location string = deployment().location
 @description('The prefix for all of the resources that will be created.')
 param resourceNamePrefix string = 'wif-blog-aaes-'
 
-@description('The prefix for all of the resources that will be created.')
+@description('The resource group name.')
 param resourceGroupName string = '${toLower(resourceNamePrefix)}${toLower(environment)}'
+
+@description('The database SKU.')
+param dbSku string
+
+@description('The database admin object id.')
+param dbAdminSID string
+
+@description('The database admin login name.')
+param dbAdminLogin string
+
+@allowed(['Application','Group','User'])
+@description('The database admin principal type.')
+param dbAdminPrincipalType string
 
 resource resourceGroup 'Microsoft.Resources/resourceGroups@2022-09-01' = {
   name: resourceGroupName
@@ -24,6 +37,10 @@ module resourceGroupModule 'setup-resource-group.bicep' = {
     environment: environment
     location: location
     resourceNamePrefix: resourceNamePrefix
+    dbSku: dbSku
+    dbAdminSID: dbAdminSID
+    dbAdminLogin: dbAdminLogin
+    dbAdminPrincipalType: dbAdminPrincipalType
   }
 }
 
@@ -31,3 +48,5 @@ output resourceGroupName string = resourceGroup.name
 output staticWebsiteName string = resourceGroupModule.outputs.staticWebsiteName
 output functionAppName string = resourceGroupModule.outputs.functionAppName
 output functionAppUrl string = resourceGroupModule.outputs.functionAppUrl
+output dbServerName string = resourceGroupModule.outputs.dbServerName
+output dbInstanceName string = resourceGroupModule.outputs.dbInstanceName

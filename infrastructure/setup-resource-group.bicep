@@ -3,11 +3,19 @@ targetScope = 'resourceGroup'
 
 param environment string
 param location string = resourceGroup().location
+param tenantId string = tenant().tenantId
 param resourceNamePrefix string = 'wif-blog-aaes-'
 param appPlanName string = '${toLower(resourceNamePrefix)}app-plan-${toLower(environment)}'
 param functionAppName string = '${toLower(resourceNamePrefix)}api-host-${toLower(environment)}'
 param staticWebsiteName string = '${toLower(resourceNamePrefix)}static-website-${toLower(environment)}'
 param storageAccountName string = '${replace(toLower(resourceNamePrefix), '-', '')}storage${toLower(environment)}'
+param dbServerName string = '${toLower(resourceNamePrefix)}db-srv-${toLower(environment)}'
+param dbSku string
+param dbInstanceName string = 'Quotes'
+param dbAdminSID string
+param dbAdminLogin string
+@allowed(['Application','Group','User'])
+param dbAdminPrincipalType string
 
 resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = {
   name: storageAccountName
@@ -29,6 +37,30 @@ resource staticWebsite 'Microsoft.Web/staticSites@2022-09-01' = {
   }
   properties: {
     
+  }
+}
+
+resource dbServer 'Microsoft.Sql/servers@2022-05-01-preview' = {
+  name: dbServerName
+  location: location
+  properties: {
+    administrators: {
+      administratorType: 'ActiveDirectory'
+      azureADOnlyAuthentication: true
+      login: dbAdminLogin
+      principalType: dbAdminPrincipalType
+      sid: dbAdminSID
+      tenantId: tenantId
+    }
+  }
+}
+
+resource dbInstance 'Microsoft.Sql/servers/databases@2022-05-01-preview' = {
+  name: dbInstanceName
+  location: location
+  parent: dbServer
+  sku:{
+    name: dbSku
   }
 }
 
@@ -72,33 +104,6 @@ resource functionApp 'Microsoft.Web/sites@2022-09-01' = {
         },{
           name: 'WEBSITE_RUN_FROM_PACKAGE'
           value: '1'
-        },{
-          name: 'Quotes__0__id'
-          value: '1'
-        },{
-          name: 'Quotes__0__text'
-          value: 'Software undergoes beta testing shortly before it\'s released. Beta is Latin for “still doesn\'t work”.'
-        },{
-          name: 'Quotes__0__source'
-          value: 'Anonymous'
-        },{
-          name: 'Quotes__1__id'
-          value: '2'
-        },{
-          name: 'Quotes__1__text'
-          value: 'Measuring programming progress by lines of code is like measuring aircraft building progress by weight.'
-        },{
-          name: 'Quotes__1__source'
-          value: 'Bill Gates'
-        },{
-          name: 'Quotes__2__id'
-          value: '3'
-        },{
-          name: 'Quotes__2__text'
-          value: 'If debugging is the process of removing software bugs, then programming must be the process of putting them in.'
-        },{
-          name: 'Quotes__2__source'
-          value: 'Edsger Dijkstra'
         }
       ]
     }
@@ -108,3 +113,5 @@ resource functionApp 'Microsoft.Web/sites@2022-09-01' = {
 output staticWebsiteName string = staticWebsite.name
 output functionAppName string = functionApp.name
 output functionAppUrl string = 'https://${functionApp.properties.defaultHostName}'
+output dbServerName string = dbServer.name
+output dbInstanceName string = dbInstance.name

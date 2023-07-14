@@ -6,6 +6,9 @@ on:
         type: string
 name: Deploy Application
 
+env:
+  DB_ADMIN_GROUP_NAME: DBAdmins_${{inputs.environment}}
+
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
@@ -26,6 +29,22 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
+      - id: setup-db-admin-group
+        name: setup-db-admin-group
+        uses: azure/cli@v1
+        with:
+          inlineScript: |
+            adGroupObjectId=$(az ad group create --display-name ${{env.DB_ADMIN_GROUP_NAME}} --mail-nickname ${{env.DB_ADMIN_GROUP_NAME}} -o tsv --query id)
+            currUserObjectId=$(az ad signed-in-user show --query id -o tsv)
+            userExists=$(az ad group member check --group $adGroupObjectId --member-id $currUserObjectId -o tsv)
+            if [ ${userExists,,} != 'true' ]
+            then
+                echo Adding user to group
+                az ad group member add --group $adGroupObjectId --member-id $currUserObjectId
+            fi
+            echo "::add-mask::$adGroupObjectId"
+            echo adGroupObjectId=$adGroupObjectId >> $GITHUB_OUTPUT
+
       - uses: azure/arm-deploy@v1
         id: azure-environment-setup
         name: azure-environment-setup
@@ -35,7 +54,7 @@ jobs:
           region: eastus2
           subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION }}
           template: ./infrastructure/setup-subscription.bicep
-          parameters: ./infrastructure/setup-subscription.parameters.${{ inputs.environment }}.json
+          parameters: ./infrastructure/setup-subscription.parameters.${{ inputs.environment }}.json dbAdminPrincipalType='Group' dbAdminSID=${{steps.setup-db-admin-group.outputs.adGroupObjectId}} dbAdminLogin=${{env.DB_ADMIN_GROUP_NAME}}
           failOnStdErr: false
 
       - name: install-npm-ui-packages

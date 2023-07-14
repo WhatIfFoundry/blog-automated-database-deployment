@@ -4,6 +4,9 @@
   "parameters": {
     "environment": {
       "value": "stg"
+    },
+    "dbSku": {
+      "value": "S0"
     }
   }
 }
