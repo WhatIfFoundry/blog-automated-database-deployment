@@ -8,6 +8,7 @@ name: Deploy Application
 
 env:
   DB_ADMIN_GROUP_NAME: DBAdmins_${{inputs.environment}}
+  FIREWALL_RULE_NAME: GitHubAction_${{ inputs.environment }}_${{ github.run_number }}
 
 jobs:
   build-and-deploy:
@@ -56,6 +57,36 @@ jobs:
           template: ./infrastructure/setup-subscription.bicep
           parameters: ./infrastructure/setup-subscription.parameters.${{ inputs.environment }}.json dbAdminPrincipalType='Group' dbAdminSID=${{steps.setup-db-admin-group.outputs.adGroupObjectId}} dbAdminLogin=${{env.DB_ADMIN_GROUP_NAME}}
           failOnStdErr: false
+
+      - name: create-whitelist-ip-in-db-firewall
+        id: create-whitelist-ip-in-db-firewall
+        uses: azure/CLI@v1
+        with:
+          inlineScript: |
+            set -eu
+            agentIP=$(curl -s https://api.ipify.org/)
+            az sql server firewall-rule create \
+              --resource-group "${{ steps.azure-environment-setup.outputs.resourceGroupName }}" \
+              --server "${{ steps.azure-environment-setup.outputs.dbServerName }}" \
+              --name ${{ env.FIREWALL_RULE_NAME }} \
+              --start-ip-address $agentIP \
+              --end-ip-address $agentIP
+            echo exit_code=0 >> $GITHUB_OUTPUT
+
+      - name: run-database-migrations
+        run: dotnet run --configuration Release -- -c 'Server=tcp:${{ steps.azure-environment-setup.outputs.dbServerName }}.database.windows.net;Authentication=Active Directory Default;Database=${{ steps.azure-environment-setup.outputs.dbInstanceName }}'
+        working-directory: ./src/db
+
+      - name: remove-whitelist-ip-in-db-firewall
+        uses: azure/CLI@v1
+        if: success() || steps.create-whitelist-ip-in-db-firewall.outputs.exit_code == 0
+        with:
+          inlineScript: |
+            set -eu
+            az sql server firewall-rule delete \
+              --resource-group "${{ steps.azure-environment-setup.outputs.resourceGroupName }}" \
+              --server "${{ steps.azure-environment-setup.outputs.dbServerName }}" \
+              --name ${{ env.FIREWALL_RULE_NAME }}
 
       - name: install-npm-ui-packages
         run: npm install
